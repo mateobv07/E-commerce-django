@@ -47,5 +47,5 @@ class Variation(models.Model):
     created_date        = models.DateTimeField(auto_now_add=True)
     objects             = VariationManager()
 
-    def __unicode__(self):
-        return self.product
+    def __str__(self):
+        return self.variation_value

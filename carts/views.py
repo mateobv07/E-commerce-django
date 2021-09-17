@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from carts.models import Cart, CartItem
-from store.models import Product
+from store.models import Product, Variation
 from django.shortcuts import get_object_or_404, render, redirect
 
 # Create your views here.
@@ -12,10 +12,18 @@ def _cart_id(request):
     return cart
     
 def add_cart(request, product_id):
-    color = request.GET['color']
-    size = request.GET['size']
-
     product = Product.objects.get(id=product_id) 
+    product_variation = []
+    if request.method == 'POST':
+        for item in request.POST:
+            key = item
+            value = request.POST[key]
+            try:
+                variation = Variation.objects.get(product=product, variation_category__iexact=key, variation_value__iexact=value)
+                product_variation.append(variation)
+                # iexact ignore if capital or lowercase
+            except ObjectDoesNotExist:
+                pass
     try:
         cart = Cart.objects.get(cart_id=_cart_id(request)) #get cart using cart_id which is the sessionkey
     except Cart.DoesNotExist:
@@ -26,6 +34,11 @@ def add_cart(request, product_id):
 
     try:
         cart_item = CartItem.objects.get(product=product, cart=cart)
+
+        if len(product_variation) > 0:
+            cart_item.variations.clear()
+            for variation in product_variation:
+                cart_item.variations.add(variation)
         cart_item.quantity += 1
         cart_item.save()
     except CartItem.DoesNotExist:
@@ -34,7 +47,12 @@ def add_cart(request, product_id):
             quantity = 1,
             cart = cart,
         )
-        cart_item.save()
+        if len(product_variation) > 0:
+            cart_item.variations.clear()
+            for variation in product_variation:
+                cart_item.variations.add(variation)
+
+    cart_item.save()
     return redirect('cart')
     
 def remove_cart(request, product_id):
