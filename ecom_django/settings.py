@@ -146,3 +146,10 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 
 }
+
+# SMTP configuration 
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587 #gmail default port
+EMAIL_HOST_USER = 'bernasconivargas.mateo@gmail.com'
+EMAIL_HOST_PASSWORD = 'Thebahamas777'
+EMAIL_USE_TLS = True
