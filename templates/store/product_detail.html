@@ -35,6 +35,7 @@
       
       
       <hr>
+      {% if variation_check %}
           <div class="row">
               <div class="item-option-select">
                   <h6>Choose Color</h6>
@@ -58,7 +59,9 @@
                    
                   </select>
               </div>
+
           </div>  <!-- row.// -->
+          {% endif %}
           <hr>
           {% if single_product.stock <= 0 %}
           <h5 class="text-danger">Out of Stock</h5>

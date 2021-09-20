@@ -2,7 +2,7 @@ from django.db.models import Q
 from carts.models import CartItem
 from category.models import Category
 from django.shortcuts import get_object_or_404, render
-from .models import Product
+from .models import Product, Variation
 from category.models import Category
 from carts.views import _cart_id
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -34,9 +34,11 @@ def store(request, category_slug=None):
     return render(request, 'store/store.html', context)
 
 def product_detail(request, category_slug, product_slug):
+    
     try:
         single_product = Product.objects.get(category__slug=category_slug, slug=product_slug)
         in_cart = CartItem.objects.filter(cart__cart_id=_cart_id(request), product=single_product).exists()
+        variation_check = Variation.objects.filter(product=single_product).exists()
         
     except Exception as e:
         raise e
@@ -44,6 +46,7 @@ def product_detail(request, category_slug, product_slug):
     context = {
         'single_product': single_product,
         'in_cart'       : in_cart,
+        'variation_check': variation_check,
     }
     return render(request, 'store/product_detail.html', context)
 
