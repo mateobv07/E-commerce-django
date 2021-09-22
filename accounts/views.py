@@ -67,11 +67,14 @@ def login(request):
         password = request.POST['password']
 
         user = auth.authenticate(email=email, password=password)
-
+        user_check_email = Account.objects.filter(email=email, is_active=False).exists()
+        
         if user is not None:
             auth.login(request, user)
             #messages.success(request, 'Login succesful')
             return redirect('home')
+        elif user_check_email:
+            return redirect('/accounts/login/?command=verification&email=' + email)
         else:
             messages.error(request, 'Invalid login credentials')
             return redirect('login')
