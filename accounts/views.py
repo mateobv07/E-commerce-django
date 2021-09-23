@@ -1,4 +1,6 @@
-import accounts
+from store.models import Variation
+from carts.views import _cart_id
+from carts.models import Cart, CartItem
 from django.http.response import HttpResponse
 from accounts.models import Account
 from django.shortcuts import render, redirect
@@ -14,6 +16,7 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 
+import requests
 
 
 # Create your views here.
@@ -61,19 +64,92 @@ def register(request):
     return render(request, 'accounts/register.html', context)
 
 def login(request):
-
+    
     if request.method == "POST":
         email = request.POST['email']
         password = request.POST['password']
 
         user = auth.authenticate(email=email, password=password)
         user_check_email = Account.objects.filter(email=email, is_active=False).exists()
+
         
         if user is not None:
+
+            try: 
+                cart = Cart.objects.get(cart_id=_cart_id(request)) #if this is false then goes to except 
+                is_cart_items_exists = CartItem.objects.filter(cart=cart).exists()
+                if is_cart_items_exists:
+                    cart_item = CartItem.objects.filter(cart=cart)
+
+                    # GETTING PRODUCT VARIATION BY CART ID
+                    product_variation = []
+                    new_products_id = []
+                    for item in cart_item:
+                        varitaion = item.variations.all()
+                        if varitaion:
+                            product_variation.append(list(varitaion))
+                            new_products_id.append(item.id)
+                        else:
+                            #CHECK IF PRODUCT WITH NO VARIATION ALREADY IN USERES CARt
+                            already_in_cart = True
+                            users_cart_item = CartItem.objects.filter(user=user)
+                            for user_item in users_cart_item:
+                                if user_item.product == item.product:
+                                    user_item.quantity = user_item.quantity + item.quantity
+                                    user_item.save()
+                                    already_in_cart = False
+                            if already_in_cart == True:
+                                item.user = user
+                                item.save()
+                        
+                    
+
+
+                    #GET CART ITEMS FROM USER TO ACCESS HIS PRODUCT VARITAION
+                    cart_item = CartItem.objects.filter(user=user)
+                    existing_variation_list = []
+                    id = []
+                    for item in cart_item:
+                        existing_variation = item.variations.all()
+                        existing_variation_list.append(list(existing_variation))
+                        id.append(item.id)
+
+                    for pr in product_variation:
+                        if pr in existing_variation_list:
+                            index = existing_variation_list.index(pr)
+                            item_id = id[index]
+                            item = CartItem.objects.get(id=item_id)
+                            item.quantity += 1
+                            item.user = user
+                            item.save()
+                        else:
+                            index = product_variation.index(pr)
+                            item_id = new_products_id[index]
+                            item = CartItem.objects.get(id=item_id)
+                            item.user = user
+                            item.save()
+
+            except:
+                pass
+            
             auth.login(request, user)
-            #messages.success(request, 'Login succesful')
-            return redirect('home')
-        elif user_check_email:
+          
+            
+            url = request.META.get('HTTP_REFERER')
+            try:
+                query = requests.utils.urlparse(url).query
+                print('query ----', query)
+                # next=/cart/cehckout
+                params = dict(x.split('=') for x in query.split('&'))
+                 
+                print('params --------', params)
+                if 'next' in params:
+                    nextPage = params['next']
+                    return redirect(nextPage)
+            except:
+                return redirect('home')
+                
+        elif user_check_email: #Check if email exists but hasnt verified
             return redirect('/accounts/login/?command=verification&email=' + email)
         else:
             messages.error(request, 'Invalid login credentials')
