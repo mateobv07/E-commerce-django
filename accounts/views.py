@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+from orderz.models import Order
 from store.models import Variation
 from carts.views import _cart_id
 from carts.models import Cart, CartItem
@@ -184,7 +186,25 @@ def activate(request, uidb64, token):
 
 @login_required(login_url = 'login')
 def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    orders = Order.objects.order_by('-created_at').filter(user=request.user, is_ordered=True)
+    orders_count = orders.count
+    context = {
+        'orders' : orders,
+        'orders_count' : orders_count,
+    }
+    return render(request, 'accounts/dashboard.html', context)
+
+@login_required(login_url = 'login')
+def my_orders(request):
+    orders = Order.objects.order_by('-created_at').filter(user=request.user, is_ordered=True)
+    context = {
+        'orders' : orders,
+    }
+    return render(request, 'accounts/my_orders.html', context)
+
+
+
+
         
 def forgotPassword(request):
     if request.method == 'POST':
@@ -248,3 +268,6 @@ def changepassword(request):
             return redirect('changepassword')
     else:
         return render(request, 'accounts/change_password.html')
+
+def edit_profile(request):
+    return render(request, 'accounts/edit_profile.html')
