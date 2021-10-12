@@ -1,12 +1,11 @@
 from django.contrib.auth.models import User
-from orderz.models import Order
+from orderz.models import Order, OrderProduct
 from store.models import Variation
 from carts.views import _cart_id
 from carts.models import Cart, CartItem
-from django.http.response import HttpResponse
-from accounts.models import Account
-from django.shortcuts import render, redirect
-from .forms import RegistrationForm
+from accounts.models import Account, UserProfile
+from django.shortcuts import get_object_or_404, render, redirect
+from .forms import RegistrationForm, UserForm, UserProfileForm
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 
@@ -178,6 +177,7 @@ def activate(request, uidb64, token):
     if user != None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
+        user_profile = UserProfile.objects.create(user=user, profile_picture='default/img_avatar.png')
         messages.success(request, 'Account successfully activated!')
         return redirect('login')
     else:
@@ -188,9 +188,11 @@ def activate(request, uidb64, token):
 def dashboard(request):
     orders = Order.objects.order_by('-created_at').filter(user=request.user, is_ordered=True)
     orders_count = orders.count
+    userprofile = UserProfile.objects.get(user=request.user)
     context = {
         'orders' : orders,
         'orders_count' : orders_count,
+        'userprofile':userprofile,
     }
     return render(request, 'accounts/dashboard.html', context)
 
@@ -269,5 +271,63 @@ def changepassword(request):
     else:
         return render(request, 'accounts/change_password.html')
 
+
+@login_required(login_url = 'login')
 def edit_profile(request):
-    return render(request, 'accounts/edit_profile.html')
+    userprofile = get_object_or_404(UserProfile, user=request.user)
+    
+    if request.method == "POST":
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+        print(profile_form)
+        if user_form.is_valid() and profile_form.is_valid():
+            profile_form.save()
+            messages.success(request, 'Your profile has been updated')
+            return redirect('edit_profile')
+    else:
+        user_form = UserForm(instance=request.user)
+        profile_form = UserProfileForm(instance=userprofile)
+    context = {
+        'user_form' : user_form,
+        'profile_form' : profile_form,
+        'userprofile':userprofile,
+    }
+
+    return render(request, 'accounts/edit_profile.html', context)
+
+@login_required(login_url = 'login')
+def change_password(request):
+    if request.method == "POST":
+        current_password = request.POST['current_password']
+        new_password = request.POST['new_password']
+        confirm_password = request.POST['confirm_password']
+
+        user = Account.objects.get(username__exact=request.user.username)
+
+        if new_password == confirm_password:
+            success = user.check_password(current_password)
+
+            if success:
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, "Password changed succesfully")
+            else:
+                messages.error(request, "Incorrect current password")
+                return redirect('change_password')
+        else:
+            messages.error(request, "Passwords do not match")
+            return redirect('change_password')
+
+    return render(request, 'accounts/change_password_dash.html')
+
+@login_required(login_url = 'login')
+def order_detail(request, order_id):
+    ordered_products = OrderProduct.objects.filter(order__order_number=order_id)
+    order = Order.objects.get(order_number=order_id)
+    subtotal = order.order_total - order.tax
+    context = {
+        'ordered_products' : ordered_products,
+        'order': order,
+        'subtotal': subtotal,
+    }
+    return render(request, 'accounts/order_detail.html', context)

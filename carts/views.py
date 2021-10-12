@@ -3,6 +3,7 @@ from carts.models import Cart, CartItem
 from store.models import Product, Variation
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
+from accounts.models import UserProfile
 
 # Create your views here.
 
@@ -215,6 +216,7 @@ def checkout(request, total=0, quantity=0, cart_items=None):
             quantity += cart_item.quantity
         tax = (10 * total)/100
         grand_total = total + tax
+        userprofile = UserProfile.objects.get(user=request.user)
     except ObjectDoesNotExist:
         pass # just ignore
 
@@ -224,5 +226,6 @@ def checkout(request, total=0, quantity=0, cart_items=None):
         'cart_items'  : cart_items,
         'grand_total' : grand_total,
         'tax'         : tax,
+        'userprofile': userprofile,
     }
     return render(request, 'store/checkout.html', context)
