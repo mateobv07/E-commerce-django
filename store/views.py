@@ -5,7 +5,7 @@ from category.models import Category
 from django.shortcuts import get_object_or_404, redirect, render
 
 from orderz.models import OrderProduct
-from .models import Product, ReviewRating, Variation
+from .models import Product, ProductGallery, ReviewRating, Variation
 from category.models import Category
 from carts.views import _cart_id
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -55,6 +55,7 @@ def product_detail(request, category_slug, product_slug):
     # Get the reviews
     reviews = ReviewRating.objects.filter(product=single_product, status=True)
 
+    product_gallery = ProductGallery.objects.filter(product_id=single_product.id)
 
 
     context = {
@@ -63,6 +64,7 @@ def product_detail(request, category_slug, product_slug):
         'variation_check': variation_check,
         'orderproduct' : orderproduct,
         'reviews': reviews,
+        'product_gallery' : product_gallery,
     }
     return render(request, 'store/product_detail.html', context)
 
