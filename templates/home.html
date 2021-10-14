@@ -5,27 +5,52 @@
 
 <!-- ========================= SECTION MAIN ========================= -->
 <section class="section-intro padding-y-sm">
-<div class="container">
 
-<div class="intro-banner-wrap">
-	<img src="{% static 'images/banners/1.jpg' %}" class="img-fluid rounded">
-</div>
 
-</div> <!-- container //  -->
+	
+		<div style=" text-align: center;  position: relative;">
+		<img src="{% static 'images/banners/hero-1.jpg' %}" class="img-fluid mt-n4" style=" text-align: center">
+		<div style="position: absolute; top: 30%;left: 28%;transform: translate(-50%, -50%);">
+			<h1 class="display-3">Fake website</h1>
+			<p class="h3">The best prices you can find</p>
+		</div>
+		</div>
 </section>
 <!-- ========================= SECTION MAIN END// ========================= -->
-
+<center>
+<div class="container my-5">
+	<div class="row  justify-content-center">
+	  <div class="col">
+		<div class="icon icon-lg "><i class="fa fa-truck" ></i></div>
+		<p class="font-weight-bold"> <strong>Shpping</strong> </p>
+		<p class="mx-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ut placerat nisi. Maecenas id vestibulum leo</p>
+	  </div>
+	  <div class="col">
+		<div class="icon icon-lg "><i class="fa fa-phone" ></i></div>
+		<p class="font-weight-bold"><strong>Customer Service</strong></p>
+		<p class="mx-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ut placerat nisi. Maecenas id vestibulum leo</p>
+	  </div>
+	  <div class="col">
+		<div class="icon icon-lg "><i class="fa fa-money"></i></div>
+		<p class="font-weight-bold"><strong>Money return</strong></p>
+		<p class="mx-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ut placerat nisi. Maecenas id vestibulum leo</p>
+	  </div>
+	</div>
+  </div>
+</center>
 <!-- ========================= SECTION  ========================= -->
 <section class="section-name padding-y-sm">
 <div class="container">
 
-<header class="section-heading">
-	<a href="{% url 'store' %}" class="btn btn-outline-primary float-right">See all</a>
-	<h3 class="section-title">Popular products</h3>
-</header><!-- sect-heading -->
-
+<header class="section-heading text-center">
 	
-<div class="row">
+	<h3 class="h2 pb-4">Popular products</h3>
+	<hr style="width:40%;height:1px;border:none;color:#333;background-color:#333;" />
+
+	<a href="{% url 'store' %}" class="btn btn-outline-primary float-right mt-n4">See all</a>
+</header><!-- sect-heading -->
+	
+<div class="row mt-5">
 	{% for product in products%}
 	<div class="col-md-3">
 		<div class="card card-product-grid">
