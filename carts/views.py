@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.http.response import JsonResponse
 from carts.models import Cart, CartItem
 from store.models import Product, Variation
 from django.shortcuts import get_object_or_404, render, redirect
