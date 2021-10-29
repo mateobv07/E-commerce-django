@@ -47,7 +47,7 @@ label:hover ~ input:checked ~ label{
 ul.thumb{
     margin: 0 auto;
     padding: 0;
-    float: left;
+    float: inline-start;
 }
 
 ul.thumb li{
@@ -56,8 +56,10 @@ ul.thumb li{
 }
 
 ul.thumb li img{
-    width: 80px;
+    max-width: 80px;
     height: 80px;
+    width: auto;
+    padding: 1%;
     border: 1px solid grey;
 }
 
