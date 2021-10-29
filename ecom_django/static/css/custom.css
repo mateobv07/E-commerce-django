@@ -56,10 +56,10 @@ ul.thumb li{
 }
 
 ul.thumb li img{
+    display: block;
     max-width: 80px;
-    max-height: 80px;
+    height: 80px;
     width: auto;
-    height: auto;
     padding: 1%;
     border: 1px solid grey;
 }
