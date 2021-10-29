@@ -56,7 +56,6 @@ ul.thumb li{
 }
 
 ul.thumb li img{
-    display: block;
     width: 80px;
     height: 80px;
     padding: 1%;
