@@ -21,7 +21,7 @@
     </article> <!-- gallery-wrap .end// -->
     <ul class="thumb">
         <li>
-            <a href="{{ single_product.images.url }}" target="mainImage"><img src="{{ single_product.images.url }}" alt="Porduct Image"></a>
+            <a href="{{ single_product.images.url }}" target="mainImage"><img src="{{ single_product.images.url }}" alt="Porduct Image" ></a>
             {% for i in product_gallery%}
             <a href="{{ i.image.url }}" target="mainImage"><img src="{{ i.image.url }}" alt="Porduct Image"></a>
             {% endfor %}
